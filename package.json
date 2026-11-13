@@ -1,0 +1,1 @@
+{"name":"states-at-war-cards","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"vite --host 0.0.0.0","build":"vite build","test":"node --test tests/card-front.test.js tests/island-map.test.js tests/move-feedback.test.js"},"dependencies":{"peerjs":"^1.5.5"},"devDependencies":{"vite":"^6.1.0"}}

@@ -1,0 +1,30 @@
+/* Approved face: centered title, corner suit, clear requirements and tinted waves. */
+.saw-card.category-reinforcement{--face-accent:#2d587b;--face-tint:#e4ecf2}
+.saw-card.category-building{--face-accent:#376a52;--face-tint:#e5eee5}
+.saw-card.category-attack{--face-accent:#a34b3f;--face-tint:#f3e5df}
+.saw-card{container-type:inline-size;--icon-cutout:#fffdf5;position:relative;display:flex;flex-direction:column;overflow:hidden;text-align:center;color:#233c4a;background:linear-gradient(145deg,#fffdf7,#f4f1e5 65%,var(--face-tint));isolation:isolate}
+.saw-card .face-heading{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:52px;width:100%;padding:24px 5px 4px}
+.saw-card .face-category{position:absolute;left:0;top:0;width:35px;height:27px;padding:3px 9px 4px 5px;border-radius:5px 0 18px 0;display:grid;place-items:center;color:#fffdf5;background:var(--face-accent);--icon-cutout:var(--face-accent);box-shadow:0 2px 3px #19374722}
+.face-category .card-vector{width:19px;height:19px}
+.saw-card .face-title{width:100%;text-align:center;font:800 clamp(12px,12cqw,20px)/1.05 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.15px}
+.face-divider{position:relative;display:block;flex:0 0 1px;width:72%;height:1px;margin:0 auto 3px;background:var(--face-accent);opacity:.45}
+.face-divider:after{content:'';position:absolute;left:calc(50% - 2.5px);top:-2.5px;width:5px;height:5px;background:var(--face-accent);transform:rotate(45deg);box-shadow:0 0 0 3px #f7f5ec}
+.saw-card .face-art{display:flex;flex:1;min-height:52px;align-items:center;justify-content:center;padding:5px 14px 7px}
+.saw-card .face-medallion{width:65px;height:65px;position:relative;display:grid;place-items:center;flex-shrink:0;border-radius:50%;background:linear-gradient(145deg,#ffffff99,var(--face-tint));color:var(--face-accent);--icon-cutout:var(--face-tint);border:1px solid #fffdf5;box-shadow:0 3px 6px #3e565220}
+.face-medallion>.card-vector{width:47px;height:47px}
+.face-modifier{position:absolute;right:-12px;bottom:-2px;min-width:32px;padding:2px 4px;border:1px solid var(--face-accent);border-radius:6px;color:var(--face-accent);background:#fffdf5;font:800 23px/1 'Barlow Condensed',sans-serif;box-shadow:0 2px 3px #2a47451c}
+.saw-card .face-description{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;min-height:66px;margin:0 7px 21px;padding:2px 0;gap:5px;border:0;border-radius:0;background:none;box-shadow:none;font:700 11px/1.2 Arial,sans-serif;color:#233c4a;position:relative;z-index:1}
+.face-requirement{display:block;color:#8b452a;font-weight:800;font-size:inherit;line-height:1.15}.face-effect{display:block}
+.face-waves{position:absolute;bottom:5px;left:5px;width:calc(100% - 10px);height:20px;color:var(--face-accent);z-index:0;pointer-events:none;border-radius:0 0 5px 5px}
+.card-frame .card-hand .card.saw-card{padding:4px 0 0;border:4px solid #fff8e7;border-radius:12px;background:linear-gradient(145deg,#fffdf7,#f4f1e5 65%,var(--face-tint));box-shadow:0 3px 0 #174a5655,0 5px 9px #174a5625,inset 0 0 0 1px #ac9d7f;color:#233c4a;--accent:var(--face-accent)}
+.card-frame .card-hand .card.saw-card:before{inset:3px;border:1px solid #a8afa1;border-radius:7px;opacity:.8;pointer-events:none;box-shadow:0 0 0 1px #ffffff70;z-index:-1}
+.card-frame .card-hand .card.saw-card:after{display:none}.card-frame .card-hand .card.saw-card.selected{outline:2px solid #ffdf7b;outline-offset:2px}
+@media(max-width:740px),(max-height:600px){.saw-card .face-heading{min-height:44px;padding-top:20px}.saw-card .face-category{width:30px;height:23px}.face-category .card-vector{width:16px;height:16px}.saw-card .face-art{min-height:38px;padding:3px 11px 5px}.saw-card .face-medallion{width:48px;height:48px}.face-medallion>.card-vector{width:35px;height:35px}.face-modifier{font-size:20px;min-width:27px;right:-10px}.saw-card .face-description{min-height:58px;font-size:10px;gap:4px;margin:0 6px 17px}.face-waves{height:16px}}
+
+.saw-card .face-description{min-height:0}.saw-card .face-art{min-height:44px}
+
+/* Hover identifies the target; selection clearly lifts the chosen card. */
+.card-frame .card-hand .card.saw-card{transition:translate .32s cubic-bezier(.22,.61,.36,1),outline-color .1s,box-shadow .18s ease-out}
+.card-frame .card-hand .card.saw-card:hover:enabled:not(.selected),.card-frame .card-hand .card.saw-card:focus-visible:not(.selected){translate:0 0;outline:3px solid #ffe59a;outline-offset:2px;box-shadow:0 0 0 5px #664b2426,0 5px 12px #143c4955;z-index:20}
+.card-frame .card-hand .card.saw-card.selected,.card-frame .card-hand .card.saw-card.selected:hover:enabled{translate:0 -28px;outline:3px solid #ffd363;outline-offset:2px;box-shadow:0 0 0 5px #805b2b35,0 12px 18px #143c4955;z-index:21}
+.reduced .card-frame .card-hand .card.saw-card,.reduced .card-frame .card-hand .card.saw-card.selected{transition:none}
