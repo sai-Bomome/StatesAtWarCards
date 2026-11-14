@@ -89,3 +89,5 @@ Approved preset from user screenshot: neutral defenders ON, range 1–3; deck 83
 Match setup puts Back and Start/Create at the top of the form. Rules, neutral garrisons and deck copies are native details sections, closed on entry. Preserve open sections during edits/resets and expand a section if a contained input fails validation.
 
 Visible card economy: draw/discard piles with counts and public discard top; opponent cards always face-down. Opening dealing runs alongside map growth; later draws and played cards have clipped in-frame flights. No inspection UI. Overflow cards are shuffled directly into draw, not discard. Building cards travel onto the board. Public cardEvents/cardFlows must not include identities for draws or overflow returns, only actually played/destroyed card types. Visual completion never controls rules or input.
+
+Card piles & feedback has a local Settings toggle, OFF by default and remembered. It controls draw/discard pile displays, opponent card backs, card-pile flights and pile status messages together. When off, restore full hand width; existing move feedback and general animations remain independent.
