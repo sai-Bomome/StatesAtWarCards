@@ -63,9 +63,9 @@ export const adjacent=(a,b)=>!!a&&!!b&&(Array.isArray(a.neighbors)?a.neighbors.i
 const fail=m=>{throw Error(m)};
 function random(s){s.rng=(Math.imul(s.rng,1664525)+1013904223)>>>0;return s.rng/4294967296;}
 function shuffle(s,a){for(let i=a.length-1;i>0;i--){const j=Math.floor(random(s)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function draw(s,id,n){for(let i=0;i<n;i++){if(!s.deck.length)s.deck=shuffle(s,s.discard.splice(0));if(!s.deck.length)break;s.players[id].hand.push(s.deck.pop());}}
+function draw(s,id,n){for(let i=0;i<n;i++){if(!s.deck.length&&s.discard.length){s.cardEvents.push({kind:'reshuffle',count:s.discard.length});s.deck=shuffle(s,s.discard.splice(0));}if(!s.deck.length)break;s.players[id].hand.push(s.deck.pop());const last=s.cardEvents.at(-1);if(last?.kind==='draw'&&last.player===id)last.count++;else s.cardEvents.push({kind:'draw',player:id,count:1});}}
 export function createGame(seed=Date.now()>>>0,config={},profiles=[],secretSeed=seed){
- const s={seed,rng:secretSeed,revision:0,round:1,turn:0,actions:3,winner:null,config:normalizeConfig(config),players:PLAYER_NAMES.map((n,i)=>({name:normalizeProfileName(profiles[i],n),hand:[]})),states:[],deck:[],discard:[],log:[],pendingSiege:null};
+ const s={seed,rng:secretSeed,revision:0,round:1,turn:0,actions:3,winner:null,config:normalizeConfig(config),players:PLAYER_NAMES.map((n,i)=>({name:normalizeProfileName(profiles[i],n),hand:[]})),states:[],deck:[],discard:[],log:[],pendingSiege:null,cardEvents:[]};
  for(let y=0;y<4;y++)for(let x=0;x<4;x++)s.states.push({id:y*4+x,x,y,active:true,owner:-1,troops:0,blocked:0,building:null,besieged:false});
  const layout=createIslandGeometry(4,seed,s.states);for(const cell of layout.cells)s.states[cell.id].neighbors=[...cell.neighbors];
  s.states[0].owner=0;s.states[0].troops=s.config.startingTroops;s.states[15].owner=1;s.states[15].troops=s.config.startingTroops;
@@ -105,15 +105,15 @@ export function multiAttackPreview(s,actor,target,sourceIds){
 }
 function checkVictory(s){for(let i=0;i<2;i++){if(s.states.filter(t=>t.owner===i&&t.building==='monument').length>=s.config.monumentsToWin){s.winner=i;s.winReason=`${s.config.monumentsToWin} monuments`;}else if(!s.states.some(t=>t.owner===1-i)){s.winner=i;s.winReason='annihilation';}}}
 export function applyCommand(input,actor,cmd){
- const s=structuredClone(input);s.troopGains=[];if(s.winner!==null)fail('The match has ended.');if(cmd.revision!==s.revision)fail('The board changed. Try again.');const p=s.players[actor];if(!p)fail('Unknown player.');const log=m=>s.log.unshift(m);
+ const s=structuredClone(input);s.troopGains=[];s.cardEvents=[];if(s.winner!==null)fail('The match has ended.');if(cmd.revision!==s.revision)fail('The board changed. Try again.');const p=s.players[actor];if(!p)fail('Unknown player.');const log=m=>s.log.unshift(m);
  if(s.pendingSiege){
   const q=s.pendingSiege;if(actor!==s.states[q.target].owner||!['counterSiege','allowSiege'].includes(cmd.type))fail('Waiting for the defender to respond to Siege.');
-  if(cmd.type==='counterSiege'){const i=p.hand.findIndex(c=>c.id===cmd.card&&c.type==='breakSiege');if(i<0)fail('Choose Break Siege from your hand.');s.discard.push(...p.hand.splice(i,1));log(`${p.name} countered Siege.`);}
+  if(cmd.type==='counterSiege'){const i=p.hand.findIndex(c=>c.id===cmd.card&&c.type==='breakSiege');if(i<0)fail('Choose Break Siege from your hand.');s.discard.push(...p.hand.splice(i,1));s.cardEvents.push({kind:'play',player:actor,cardType:'breakSiege',to:'discard'});log(`${p.name} countered Siege.`);}
   else{const t=s.states[q.target],blocked=siegeBlocked(t.troops,s.config);t.troops-=blocked;t.blocked=(t.blocked||0)+blocked;t.besieged=true;log(`${p.name} accepted Siege: ${blocked} troops blocked.`);}
   s.pendingSiege=null;
  }else{
   if(actor!==s.turn)fail('Wait for your turn.');
-  if(cmd.type==='discard'){if(p.hand.length<=s.config.handLimit)fail(`Discard only when above ${s.config.handLimit} cards.`);const i=p.hand.findIndex(c=>c.id===cmd.card);if(i<0)fail('Choose a card from your hand.');s.discard.push(...p.hand.splice(i,1));}
+  if(cmd.type==='discard'){if(p.hand.length<=s.config.handLimit)fail(`Discard only when above ${s.config.handLimit} cards.`);const i=p.hand.findIndex(c=>c.id===cmd.card);if(i<0)fail('Choose a card from your hand.');s.deck.push(...p.hand.splice(i,1));shuffle(s,s.deck);s.cardEvents.push({kind:'return',player:actor,count:1});log(`${p.name} returned an overflow card to the draw pile.`);}
   else if(cmd.type==='end'){
    if(p.hand.length>s.config.handLimit)fail(`Discard down to ${s.config.handLimit} before ending your turn.`);s.turn=1-actor;s.actions=s.config.actionsPerTurn;if(s.turn===s.first)s.round++;
    let barracksGain=0;for(const t of s.states)if(t.owner===s.turn&&t.building==='barracks'&&!t.besieged){t.troops+=s.config.barracksProduction;if(s.config.barracksProduction)s.troopGains.push({target:t.id,source:'Barracks',amount:s.config.barracksProduction});barracksGain+=s.config.barracksProduction;}
@@ -127,14 +127,15 @@ export function applyCommand(input,actor,cmd){
    else if(card.type==='move'){const r=movementPreview(s,actor,cmd.source,cmd.target,cmd.amount);s.states[cmd.source].troops=r.remaining;t.troops=r.destination;log(`${p.name} moved ${r.amount} active troops from ${label(s.states[cmd.source])} to ${label(t)}.`);}
    else if(card.type==='barracks'||card.type==='monument'){t.building=card.type;t.buildingCard={...card};log(`${p.name} built ${card.type} at ${label(t)}.`);}
    else if(card.type==='sabotage'){const loss=Math.min(s.config.sabotageDamage,t.troops);t.troops-=loss;log(`${p.name} sabotaged ${label(t)} (-${loss} active troops).`);}
-   else if(card.type==='demolish'){if(t.buildingCard)s.discard.push(t.buildingCard);t.buildingCard=null;t.building=null;log(`${p.name} demolished the barracks at ${label(t)}.`);}
+   else if(card.type==='demolish'){if(t.buildingCard){s.discard.push(t.buildingCard);s.cardEvents.push({kind:'demolish',target:t.id,cardType:t.buildingCard.type,to:'discard'});}t.buildingCard=null;t.building=null;log(`${p.name} demolished the barracks at ${label(t)}.`);}
    else if(card.type==='siege'){s.pendingSiege={target:t.id,attacker:actor};log(`${p.name} besieges ${label(t)} — defender may counter.`);}
    else if(card.type==='breakSiege'){t.troops+=t.blocked||0;t.blocked=0;t.besieged=false;log(`${p.name} broke the siege at ${label(t)}.`);}
    else if(card.type==='attack'||card.type==='capture'){
     const result=multiAttackPreview(s,actor,cmd.target,cmd.sources);for(const part of result.contributions)s.states[part.source].troops-=part.amount;
-    if(result.capture){t.owner=actor;t.troops=result.survivors;t.blocked=0;t.besieged=false;if(card.type==='attack'){if(t.buildingCard)s.discard.push(t.buildingCard);t.buildingCard=null;t.building=null;}}else t.troops=result.remaining;
+    if(result.capture){t.owner=actor;t.troops=result.survivors;t.blocked=0;t.besieged=false;if(card.type==='attack'){if(t.buildingCard){s.discard.push(t.buildingCard);s.cardEvents.push({kind:'demolish',target:t.id,cardType:t.buildingCard.type,to:'discard'});}t.buildingCard=null;t.building=null;}}else t.troops=result.remaining;
     log(`${p.name} used ${CARDS[card.type].name} at ${label(t)}: ${result.capture?'captured with '+result.survivors:result.remaining+' active defenders remain'}.`);
    }else fail('Pair Double with a reinforcement card.');
+   for(const c of p.hand.filter(c=>spent.includes(c.id)))s.cardEvents.push({kind:'play',player:actor,cardType:c.type,to:['barracks','monument'].includes(c.type)?'board':'discard',target:t.id});
    s.discard.push(...p.hand.filter(c=>spent.includes(c.id)&&!['barracks','monument'].includes(c.type)));p.hand=p.hand.filter(c=>!spent.includes(c.id));s.actions-=cost;
   }else fail('Unknown command.');
  }

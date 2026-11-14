@@ -13,7 +13,7 @@ The current workstation uses a node_modules junction to the original project's i
 - Two players, 16 provinces, actual shared-edge adjacency. Start with one province and 2 active troops each.
 - Default shared deck: 83 cards. Reinforcements +1 ×15, +2 ×10, +5 ×3, +10 ×1; Move Troops ×6; Double ×3; Barracks ×6; Monument ×3; Sabotage ×3; Demolish ×3; Attack ×20; Siege ×4; Capture ×3; Break Siege ×3.
 - Host/local setup exposes 0–100 copies of every card, live deck total, individual resets and full reset. At least 12 cards required. Settings are locked into the authoritative match and shared in guest snapshots. Fewer than 3 Monument cards makes prosperity unavailable; with extra copies, holding any 3 wins.
-- Deal 5 each, draw 2 at turn start (including opener), play up to 3, discard to 7 before passing. Discarding costs no action. Played/discarded cards recycle.
+- Deal 5 each, draw 2 at turn start (including opener), play up to 3, discard to 7 before passing. Discarding costs no action. Played cards enter discard and recycle when draw empties. Overflow returns are shuffled into draw immediately.
 - Reinforce adds its printed value in active troops. Attach Double before tapping the destination, in either selection order; both cards together cost 2 plays. No stacking doublers.
 - One building per province. Barracks produces +1 active troop at each future owner-turn start. Monuments require 5 active troops to build, without spending them; that requirement is checked only when building.
 - Built cards stay on their province, outside the draw/discard piles. Capturing preserves the actual card; demolished buildings return to discard. This prevents duplicate monuments through recycling.
@@ -113,3 +113,9 @@ Accepted card plays show a named card chip and name in the recap, including pair
 Match results now show a large Victory/Defeat heading from the viewing player’s perspective, the winner, and a high-contrast explanation: the configured monument target for prosperity, or the eliminated player and last-province capture for annihilation. The result card stays inside the frame without a full-screen scrim, and replaces obsolete turn/attack controls.
 
 End-of-match layout: the result replaces the bottom card hand, with a transparent heading/winner and a compact background only behind its reason. The battlefield remains unobscured.
+
+## Visible card piles and flow
+
+The frame shows a draw pile with count, discard pile with its latest played card/count, and the opponent's actual hand count as card backs. No discard inspection UI is added. During province formation, anonymous cards deal from the full draw pile to each player, with an animated draw count and arriving opponent backs. Later turn-start draws fly to the recipient; used actions fly face-up to discard, and building cards fly onto their province. Destroyed building cards also enter discard. When draw empties, the played discard pile visibly recycles into draw before drawing continues.
+
+Overflow uses a different rule: return chosen extras directly to draw and shuffle them into that pile, without spending a play. Public return/draw flow events contain player/count only, never card identity or deck order. Only actual played/destroyed cards expose their types. All card movement is cosmetic, bounded, clipped to the frame and reduced-motion aware; canceling/skipping a flight never changes the authoritative result.

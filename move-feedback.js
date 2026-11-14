@@ -5,7 +5,7 @@ export function describeMove(before, after, command) {
   if (after.revision !== before.revision + 1) return null;
   const actor = before.pendingSiege ? before.states[before.pendingSiege.target].owner : before.turn;
   const name = before.players[actor].name;
-  const event = {id: after.revision, actor, kind: command.type, summary: '', marks: [], arrow: null};
+  const event = {id: after.revision, actor, kind: command.type, summary: '', marks: [], arrow: null, cardFlows:after.cardEvents||[]};
   if (command.type === 'end') {
     event.kind = after.winner === null ? 'turn' : 'victory';
     const gains=after.troopGains||[];
@@ -17,7 +17,7 @@ export function describeMove(before, after, command) {
   } else if (['allowSiege','counterSiege'].includes(command.type)) {
     event.cards=command.type==='counterSiege'?['breakSiege']:[];event.summary=command.type==='counterSiege'?`${name} played Break Siege · cancelled Siege`:after.log[0];event.kind='siege';event.marks.push({target:before.pendingSiege.target,kind:'gain',text:command.type==='counterSiege'?'Cancelled':'Blocked',source:command.type==='counterSiege'?'Break Siege':'Siege'});
   } else if (command.type === 'discard') {
-    event.summary = `${name} discarded a card`;
+    event.summary = `${name} returned an overflow card to the draw pile`;
   } else if (command.type === 'play') {
     const card = before.players[actor].hand.find(c => c.id === command.card);
     if (!card) return null;
