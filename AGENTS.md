@@ -65,3 +65,7 @@ Attack/Capture now use target-first multi-source planning. Tap each adjacent own
 Empty hands at turn start draw emptyHandDraw (default 5) instead of drawPerTurn; no immediate refill upon playing the last card. Keep log/feedback counts accurate.
 
 On choosing an Attack/Capture target, automatically select every adjacent owned province able to contribute active troops. Preserve manual toggles while staying on that target; recompute the full eligible selection when switching targets. Confirmation remains required.
+
+The top right has one Settings button. Consolidate coordinates, sound, motion, ocean/border tuners, help/history and Leave match inside its in-frame scrollable panel. Keep discard (when needed) and End Turn at the bottom above cards. Escape closes Settings without losing an attack plan.
+
+A besieged barracks never produces at turn start, even when blocked count is zero. After Break Siege, production resumes on the next owner turn, without catch-up. Passive growth is independent of barracks production.

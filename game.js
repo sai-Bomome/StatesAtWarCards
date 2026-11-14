@@ -38,7 +38,7 @@ export const growthSummary=c=>!(c.growthTroops??0)?'Passive troop growth is off.
 function passiveGrowth(s,opening=false){const n=s.config.growthTroops??0;if(!n)return 0;const roundMode=s.config.growthMode===1;if(roundMode&&(opening||s.turn!==s.first||(s.round-1)%s.config.growthEveryRounds!==0))return 0;let gained=0;for(const t of s.states)if(t.owner>=0&&(!roundMode?t.owner===s.turn:true)){t.troops+=n;gained+=n;}return gained;}
 export const siegeBlocked=(troops,config)=>Math.floor(troops*(config.siegeBlockPercent??50)/100);
 export function cardDescription(type,config=DEFAULT_CONFIG){
- if(type==='barracks')return `Build: gain ${config.barracksProduction} active ${config.barracksProduction===1?'troop':'troops'} here each future turn.`;
+ if(type==='barracks')return `Build: gain ${config.barracksProduction} active ${config.barracksProduction===1?'troop':'troops'} here each future turn unless besieged.`;
  if(type==='monument')return `Build with ${config.monumentMinTroops} active troops. Control ${config.monumentsToWin} to win.`;
  if(type==='sabotage')return `Remove up to ${config.sabotageDamage} active troops from an adjacent enemy.`;
  if(type==='siege')return `Block ${config.siegeBlockPercent}% of troops at an adjacent enemy building.`;
@@ -103,8 +103,8 @@ export function applyCommand(input,actor,cmd){
   if(cmd.type==='discard'){if(p.hand.length<=s.config.handLimit)fail(`Discard only when above ${s.config.handLimit} cards.`);const i=p.hand.findIndex(c=>c.id===cmd.card);if(i<0)fail('Choose a card from your hand.');s.discard.push(...p.hand.splice(i,1));}
   else if(cmd.type==='end'){
    if(p.hand.length>s.config.handLimit)fail(`Discard down to ${s.config.handLimit} before ending your turn.`);s.turn=1-actor;s.actions=s.config.actionsPerTurn;if(s.turn===s.first)s.round++;
-   for(const t of s.states)if(t.owner===s.turn&&t.building==='barracks')t.troops+=s.config.barracksProduction;
-   const passive=passiveGrowth(s),beforeDraw=s.players[s.turn].hand.length,drawCount=beforeDraw===0?(s.config.emptyHandDraw??5):s.config.drawPerTurn;draw(s,s.turn,drawCount);s.lastDrawCount=s.players[s.turn].hand.length-beforeDraw;log(`${s.players[s.turn].name}'s turn: drew ${s.lastDrawCount} cards; barracks reinforced.${passive?` Passive growth added ${passive} troops.`:''}`);
+   let barracksGain=0;for(const t of s.states)if(t.owner===s.turn&&t.building==='barracks'&&!t.besieged){t.troops+=s.config.barracksProduction;barracksGain+=s.config.barracksProduction;}
+   const passive=passiveGrowth(s),beforeDraw=s.players[s.turn].hand.length,drawCount=beforeDraw===0?(s.config.emptyHandDraw??5):s.config.drawPerTurn;draw(s,s.turn,drawCount);s.lastDrawCount=s.players[s.turn].hand.length-beforeDraw;log(`${s.players[s.turn].name}'s turn: drew ${s.lastDrawCount} cards.${barracksGain?` Barracks added ${barracksGain} troops.`:''}${passive?` Passive growth added ${passive} troops.`:''}`);
   }else if(cmd.type==='play'){
    if(s.actions<1)fail('No card plays left. End your turn.');const card=p.hand.find(c=>c.id===cmd.card);if(!card)fail('Choose a card from your hand.');
    if(!Number.isInteger(cmd.target)||!legalTarget(s,actor,card.type,cmd.target))fail('Choose a highlighted province.');
