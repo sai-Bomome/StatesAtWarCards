@@ -292,3 +292,5 @@
 @media(max-width:600px){.neutral-range{grid-template-columns:1fr 65px;gap:8px}.neutral-range span{grid-column:1/-1}.neutral-range input[type=number]{width:65px}}
 
 .movement-dock{flex-wrap:wrap;justify-content:center}.move-stepper{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0}.move-stepper input[type=range]{width:100px;accent-color:#edc77c}.move-stepper input[type=number]{width:60px;padding:7px;background:#102f3a;border:1px solid #91babd;color:#fff8e9}
+
+.move-badge .feedback-source{font-size:10px;font-weight:700;fill:#fff8e9}.feedback-cards{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}.feedback-card{display:inline-flex;align-items:center;gap:5px;border:1px solid #ffffff55;background:#ffffff14;padding:4px 6px;border-radius:5px;font-weight:800;font-size:11px}.feedback-card .card-vector{width:15px;height:15px;color:#fff8e9;--icon-cutout:#28515d}

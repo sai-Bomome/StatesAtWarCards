@@ -105,3 +105,7 @@ Move Troops is implemented with 6 default copies (editable in deck setup). Selec
 ## Play vs Bot
 
 Choose Play vs Bot in the lobby, configure the same deck/rules, then start. You are the first profile (Azure by default); Field Bot is the opponent. The normal random opening player remains. No pass-and-play handoff or network connection is needed. The bot uses only its redacted player view, follows the regular host validator, plays short spaced-out moves with normal feedback, handles Siege reactions, discards to the limit and passes. Its simple greedy priorities favor winning captures/monuments, safe expansion, reinforcements, buildings and moving rear reserves toward the front. It is a basic playtest opponent, not a search-based AI. Closing/leaving the match cancels pending bot work.
+
+## Source-labeled feedback
+
+Accepted card plays show a named card chip and name in the recap, including paired Double Reinforcements. Map count badges identify Reinforcements, Move Troops, Attack/Capture and Break Siege. Turn-start gains carry an authoritative per-province source breakdown, separating barracks production and passive growth even when both occur together. The bot now spaces decisions 1.8 seconds apart so each public action can be followed; no animation completion gates rules or turns.
