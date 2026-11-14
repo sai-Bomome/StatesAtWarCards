@@ -16,12 +16,12 @@ The current workstation uses a node_modules junction to the original project's i
 - Deal 5 each, draw 2 at turn start (including opener), play up to 3, discard to 7 before passing. Discarding costs no action. Played/discarded cards recycle.
 - Reinforce adds its printed value in active troops. Attach Double before tapping the destination, in either selection order; both cards together cost 2 plays. No stacking doublers.
 - One building per province. Barracks produces +1 active troop at each future owner-turn start. Monuments require 5 active troops to build, without spending them; that requirement is checked only when building.
-- Built cards stay on their province, outside the draw/discard piles. Capturing preserves the actual card; demolished barracks return to discard. This prevents duplicate monuments through recycling.
-- Attack sends active troops into adjacent neutral/enemy land, leaving 1 behind. Combat cancels 1:1; surviving attackers capture. Ties retain the defending ownership. Attack demolishes barracks and cannot target monuments.
+- Built cards stay on their province, outside the draw/discard piles. Capturing preserves the actual card; demolished buildings return to discard. This prevents duplicate monuments through recycling.
+- Attack sends active troops into adjacent neutral/enemy land, leaving 1 behind. Combat cancels 1:1; surviving attackers capture. Ties retain the defending ownership. Attack demolishes barracks and can target monuments.
 - Sabotage removes up to 3 active troops from an adjacent enemy, leaving buildings/ownership/blocked troops unchanged. Demolish destroys an adjacent enemy barracks only.
 - Siege targets either enemy building next to your land. Defender explicitly chooses Break Siege (a free out-of-turn reaction) or Allow Siege. Attacker cannot continue until the response. No timer or animation controls this decision. Local play privately hands the screen to the defender and back.
 - Allowed Siege blocks floor(active troops / 2), leaving the larger half active. Blocked troops remain present but cannot fight or move. Only one siege per province. Reinforcements and barracks gains arrive active.
-- Capture requires a besieged adjacent enemy province, uses normal active-troop combat, retains its building on success, and removes all blocked defenders. Siege → Capture can therefore preserve a barracks as well as a monument.
+- Capture targets adjacent enemy provinces without requiring siege, uses normal active-troop combat, retains its building on success, and removes all blocked defenders. Capture can preserve either building directly; Siege is optional preparation.
 - Break Siege on your turn costs 1 play and reactivates blocked troops. As an immediate response it cancels Siege without spending the defender's future actions.
 - Immediate victory: control 3 built monuments or eliminate the opponent's last province. The previous majority rule is removed. Maximum-round scoring remains a future design decision; no round cap is implemented.
 - No free movement, gold, building health or defensive combat modifiers.
@@ -91,3 +91,9 @@ Empty-hand rule: at the start of your turn, draw emptyHandDraw cards (default 5)
 Settings panel: the only top-right button opens coordinates, sound, animations, nested ocean/border appearance controls, help/history and Leave match. Escape or Close dismisses the panel. Discard remains a bottom action alongside End Turn when the hand is over its limit.
 
 Barracks under siege produce no troops. Break Siege restores their future production at the next owner-turn start; missed production is not paid retroactively. Ordinary reinforcement cards and optional passive growth remain active-troop gains independent of barracks.
+
+Siege is optional for all captures. Attack can take a monument province and demolishes its monument; the physical Monument card returns to discard so prosperity remains achievable. Capture keeps barracks or monuments intact without requiring Siege. Buildings are removed only after successful Attack combat, not when defenders hold.
+
+## Starting neutral garrisons
+
+Host/local setup has a toggle (default off) and linked minimum/maximum sliders with numeric inputs (default 1–10, allowed 0–100). Enabled garrisons scale linearly, rounded to whole troops, between the smallest and largest initially neutral provinces by raster land area. Equal-size provinces use the minimum; equal bounds give every neutral that fixed count. Player starting provinces keep startingTroops. Assignment is deterministic and host-authoritative, consumes no deck RNG, and happens only at match creation. Guarded neutral provinces show dark helmet/count markers; zero-troop neutral provinces stay blank.

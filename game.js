@@ -10,9 +10,9 @@ export const CARDS={
  monument:{name:'Monument',icon:'flag',description:'Build with 5 active troops. Control 3 to win.'},
  sabotage:{name:'Sabotage',icon:'sword',description:'Remove up to 3 active troops from an adjacent enemy.'},
  demolish:{name:'Demolish',icon:'sword',description:'Destroy an adjacent enemy barracks. Troops stay.'},
- attack:{name:'Attack',icon:'sword',description:'Capture adjacent land; demolish buildings. No monuments.'},
+ attack:{name:'Attack',icon:'sword',description:'Capture adjacent land and demolish its building, including monuments.'},
  siege:{name:'Siege',icon:'sword',description:'Block half the troops at an adjacent enemy building.'},
- capture:{name:'Capture',icon:'flag',description:'Fight a besieged province and keep its building.'},
+ capture:{name:'Capture',icon:'flag',description:'Capture adjacent land and keep its building. Siege is optional.'},
  breakSiege:{name:'Break Siege',icon:'flag',description:'Unblock your troops or counter a Siege.'}
 };
 export const DEFAULT_COPIES={reinforce1:10,reinforce2:5,reinforce5:2,reinforce10:1,double:2,barracks:3,monument:3,sabotage:3,demolish:3,attack:20,siege:2,capture:2,breakSiege:3};
@@ -26,6 +26,9 @@ export const RULE_FIELDS=[
  {key:'attackPercent',label:'Troops contributed per attacking province (%)',default:50,min:1,max:100},
  {key:'siegeBlockPercent',label:'Siege blocked troops (%)',default:50,min:0,max:100},
  {key:'monumentsToWin',label:'Monuments to win',default:3,min:1,max:16},
+ {key:'neutralTroopsEnabled',label:'Starting neutral troops',default:false,type:'boolean'},
+ {key:'neutralTroopsMin',label:'Minimum neutral troops',default:1,min:0,max:100},
+ {key:'neutralTroopsMax',label:'Maximum neutral troops',default:10,min:0,max:100},
  {key:'startingTroops',label:'Starting troops per player',default:2,min:1,max:100},
  {key:'startingHand',label:'Starting hand',default:5,min:1,max:10},
  {key:'emptyHandDraw',label:'Cards drawn when starting with an empty hand',default:5,min:1,max:10},
@@ -49,7 +52,8 @@ export function normalizeConfig(c={}){
  if(c.playerCount!==undefined&&c.playerCount!==2)throw Error('This prototype is for two players.');
  const copies={...DEFAULT_COPIES,...c.copies};
  for(const [type,n] of Object.entries(copies))if(!CARDS[type]||!Number.isInteger(n)||n<0||n>100)throw Error('Copies must be whole numbers from 0 to 100.');
- const config={...DEFAULT_CONFIG,copies};for(const f of RULE_FIELDS){const n=c[f.key]??f.default;if(!Number.isInteger(n)||n<f.min||n>f.max)throw Error(`${f.label} must be a whole number from ${f.min} to ${f.max}.`);config[f.key]=n;}
+ const config={...DEFAULT_CONFIG,copies};for(const f of RULE_FIELDS){const n=c[f.key]??f.default;if(f.type==='boolean'){if(typeof n!=='boolean')throw Error(`${f.label} must be on or off.`);config[f.key]=n;continue;}if(!Number.isInteger(n)||n<f.min||n>f.max)throw Error(`${f.label} must be a whole number from ${f.min} to ${f.max}.`);config[f.key]=n;}
+ if(config.neutralTroopsMin>config.neutralTroopsMax)throw Error('Minimum neutral troops cannot exceed the maximum.');
  const minimum=config.startingHand*2+config.drawPerTurn;if(Object.values(copies).reduce((a,b)=>a+b,0)<minimum)throw Error(`The deck needs at least ${minimum} cards for the opening deal.`);
  return config;
 }
@@ -64,6 +68,8 @@ export function createGame(seed=Date.now()>>>0,config={},profiles=[],secretSeed=
  for(let y=0;y<4;y++)for(let x=0;x<4;x++)s.states.push({id:y*4+x,x,y,active:true,owner:-1,troops:0,blocked:0,building:null,besieged:false});
  const layout=createIslandGeometry(4,seed,s.states);for(const cell of layout.cells)s.states[cell.id].neighbors=[...cell.neighbors];
  s.states[0].owner=0;s.states[0].troops=s.config.startingTroops;s.states[15].owner=1;s.states[15].troops=s.config.startingTroops;
+ if(s.config.neutralTroopsEnabled){const neutral=layout.growth.seeds.filter(c=>s.states[c.id].owner<0),small=Math.min(...neutral.map(c=>c.area)),large=Math.max(...neutral.map(c=>c.area));for(const c of neutral){const ratio=large===small?0:(c.area-small)/(large-small);s.states[c.id].troops=Math.round(s.config.neutralTroopsMin+ratio*(s.config.neutralTroopsMax-s.config.neutralTroopsMin));}}
+
  let id=0;for(const type of Object.keys(CARDS))for(let i=0;i<s.config.copies[type];i++)s.deck.push({id:id++,type});
  s.actions=s.config.actionsPerTurn;shuffle(s,s.deck);draw(s,0,s.config.startingHand);draw(s,1,s.config.startingHand);s.turn=Math.floor(random(s)*2);s.first=s.turn;passiveGrowth(s,true);draw(s,s.turn,s.config.drawPerTurn);
  s.log=[`${s.players[s.turn].name} opens: drew ${s.config.drawPerTurn} cards. Control ${s.config.monumentsToWin} monuments or eliminate your opponent to win. ${growthSummary(s.config)}`];return s;
@@ -75,7 +81,7 @@ export function legalTarget(s,actor,type,id){
  if(CARDS[type]?.value)return t.owner===actor;
  if(type==='barracks'||type==='monument')return t.owner===actor&&!t.building&&(type!=='monument'||t.troops>=s.config.monumentMinTroops);
  if(type==='breakSiege')return t.owner===actor&&t.besieged;
- if(type==='attack'||type==='capture')return t.owner!==actor&&(type==='attack'?t.building!=='monument':t.besieged)&&s.states.some(a=>a.owner===actor&&a.troops>1&&adjacent(a,t));
+ if(type==='attack'||type==='capture')return t.owner!==actor&&s.states.some(a=>a.owner===actor&&a.troops>1&&adjacent(a,t));
  if(t.owner<0||t.owner===actor||!near)return false;
  if(type==='sabotage')return t.troops>0;
  if(type==='demolish')return t.building==='barracks';

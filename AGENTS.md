@@ -69,3 +69,7 @@ On choosing an Attack/Capture target, automatically select every adjacent owned 
 The top right has one Settings button. Consolidate coordinates, sound, motion, ocean/border tuners, help/history and Leave match inside its in-frame scrollable panel. Keep discard (when needed) and End Turn at the bottom above cards. Escape closes Settings without losing an attack plan.
 
 A besieged barracks never produces at turn start, even when blocked count is zero. After Break Siege, production resumes on the next owner turn, without catch-up. Passive growth is independent of barracks production.
+
+Latest capture rule: Siege is optional for both barracks and monuments. Attack/Capture have the same adjacency and troop-source eligibility; Attack demolishes any building (including monuments) on success and recycles its physical card, while Capture preserves it. Never grant monument provinces Attack immunity. Siege still blocks active troops and stops barracks production.
+
+Optional starting neutral troops use neutralTroopsEnabled (false), neutralTroopsMin (1), neutralTroopsMax (10). Map actual raster province area monotonically to bounds, neutral provinces only. Show dark card-style helmet/count for guarded neutrals; keep zero neutral provinces blank.
