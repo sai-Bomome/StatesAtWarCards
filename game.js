@@ -19,6 +19,9 @@ export const DEFAULT_COPIES={reinforce1:10,reinforce2:5,reinforce5:2,reinforce10
 export const RULE_FIELDS=[
  {key:'monumentMinTroops',label:'Troops to build a monument',default:5,min:1,max:100},
  {key:'barracksProduction',label:'Barracks troops per turn',default:1,min:0,max:50},
+ {key:'growthTroops',label:'Passive troops per owned province (0 = off)',default:0,min:0,max:100},
+ {key:'growthMode',label:'Passive growth timing',default:0,min:0,max:1,options:[{value:0,label:'Each owner turn start'},{value:1,label:'Every N completed rounds'}]},
+ {key:'growthEveryRounds',label:'Rounds between passive growth (round mode)',default:2,min:1,max:100},
  {key:'sabotageDamage',label:'Sabotage troop loss',default:3,min:1,max:100},
  {key:'siegeBlockPercent',label:'Siege blocked troops (%)',default:50,min:0,max:100},
  {key:'monumentsToWin',label:'Monuments to win',default:3,min:1,max:16},
@@ -29,6 +32,8 @@ export const RULE_FIELDS=[
  {key:'handLimit',label:'Hand limit after turn',default:7,min:1,max:20}
 ];
 export const DEFAULT_CONFIG={playerCount:2,boardSize:4,...Object.fromEntries(RULE_FIELDS.map(f=>[f.key,f.default])),copies:DEFAULT_COPIES};
+export const growthSummary=c=>!(c.growthTroops??0)?'Passive troop growth is off.':`Passive growth: +${c.growthTroops} active troops per owned province ${c.growthMode===1?`after every ${c.growthEveryRounds} completed rounds (both players)`:'at its owner’s turn start'}.`;
+function passiveGrowth(s,opening=false){const n=s.config.growthTroops??0;if(!n)return 0;const roundMode=s.config.growthMode===1;if(roundMode&&(opening||s.turn!==s.first||(s.round-1)%s.config.growthEveryRounds!==0))return 0;let gained=0;for(const t of s.states)if(t.owner>=0&&(!roundMode?t.owner===s.turn:true)){t.troops+=n;gained+=n;}return gained;}
 export const siegeBlocked=(troops,config)=>Math.floor(troops*(config.siegeBlockPercent??50)/100);
 export function cardDescription(type,config=DEFAULT_CONFIG){
  if(type==='barracks')return `Build: gain ${config.barracksProduction} active ${config.barracksProduction===1?'troop':'troops'} here each future turn.`;
@@ -58,8 +63,8 @@ export function createGame(seed=Date.now()>>>0,config={},profiles=[],secretSeed=
  const layout=createIslandGeometry(4,seed,s.states);for(const cell of layout.cells)s.states[cell.id].neighbors=[...cell.neighbors];
  s.states[0].owner=0;s.states[0].troops=s.config.startingTroops;s.states[15].owner=1;s.states[15].troops=s.config.startingTroops;
  let id=0;for(const type of Object.keys(CARDS))for(let i=0;i<s.config.copies[type];i++)s.deck.push({id:id++,type});
- s.actions=s.config.actionsPerTurn;shuffle(s,s.deck);draw(s,0,s.config.startingHand);draw(s,1,s.config.startingHand);s.turn=Math.floor(random(s)*2);s.first=s.turn;draw(s,s.turn,s.config.drawPerTurn);
- s.log=[`${s.players[s.turn].name} opens: drew ${s.config.drawPerTurn} cards. Control ${s.config.monumentsToWin} monuments or eliminate your opponent to win.`];return s;
+ s.actions=s.config.actionsPerTurn;shuffle(s,s.deck);draw(s,0,s.config.startingHand);draw(s,1,s.config.startingHand);s.turn=Math.floor(random(s)*2);s.first=s.turn;passiveGrowth(s,true);draw(s,s.turn,s.config.drawPerTurn);
+ s.log=[`${s.players[s.turn].name} opens: drew ${s.config.drawPerTurn} cards. Control ${s.config.monumentsToWin} monuments or eliminate your opponent to win. ${growthSummary(s.config)}`];return s;
 }
 export const livingPlayers=s=>s.players.map((_,i)=>i).filter(i=>s.states.some(t=>t.owner===i));
 export const standings=s=>s.players.map((p,id)=>({id,name:p.name,states:s.states.filter(t=>t.owner===id).length,troops:s.states.filter(t=>t.owner===id).reduce((a,t)=>a+t.troops,0),monuments:s.states.filter(t=>t.owner===id&&t.building==='monument').length})).sort((a,b)=>b.states-a.states);
@@ -90,7 +95,7 @@ export function applyCommand(input,actor,cmd){
   else if(cmd.type==='end'){
    if(p.hand.length>s.config.handLimit)fail(`Discard down to ${s.config.handLimit} before ending your turn.`);s.turn=1-actor;s.actions=s.config.actionsPerTurn;if(s.turn===s.first)s.round++;
    for(const t of s.states)if(t.owner===s.turn&&t.building==='barracks')t.troops+=s.config.barracksProduction;
-   draw(s,s.turn,s.config.drawPerTurn);log(`${s.players[s.turn].name}'s turn: drew ${s.config.drawPerTurn} cards; barracks reinforced.`);
+   const passive=passiveGrowth(s);draw(s,s.turn,s.config.drawPerTurn);log(`${s.players[s.turn].name}'s turn: drew ${s.config.drawPerTurn} cards; barracks reinforced.${passive?` Passive growth added ${passive} troops.`:''}`);
   }else if(cmd.type==='play'){
    if(s.actions<1)fail('No card plays left. End your turn.');const card=p.hand.find(c=>c.id===cmd.card);if(!card)fail('Choose a card from your hand.');
    if(!Number.isInteger(cmd.target)||!legalTarget(s,actor,card.type,cmd.target))fail('Choose a highlighted province.');

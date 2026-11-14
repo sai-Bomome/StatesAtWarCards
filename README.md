@@ -77,3 +77,7 @@ Host and local setup expose monument minimum active troops (5), barracks product
 Cards use centered names, a corner category badge and diamond divider, medieval silhouettes, bold borderless copy with separate highlighted requirements, and subtle category-colored waves along the bottom. The rendered requirement values follow match configuration. Hover/focus shows a gold outline; selected cards lift 28 pixels. Reduced motion preserves the static selected position without a transition.
 
 Match HUD: End Turn is centered above the bottom hand, remaining card plays have their own small tray beside the upper-left profiles, and the round indicator is centered at the top.
+
+## Optional passive troop growth
+
+Setup exposes troops per owned province (0 disables it), timing (each owner turn start or every N completed rounds), and the round interval. Turn timing includes the opening turn and affects only the incoming owner. Round timing grows both players’ currently owned provinces once after N complete rounds: N=2 first triggers when round 3 begins. Neutral land never grows. Troops arrive active, blocked counts stay unchanged, and barracks production stacks on top. Host snapshots carry these settings; accepted end-turn events show troop gains on the map.

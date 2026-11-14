@@ -270,3 +270,5 @@
 @media(max-width:1100px){.plays-tray{left:218px}.card-frame>.turn-indicator{bottom:270px}.card-frame .island-map{padding-bottom:300px}}
 @media(max-width:740px){.card-frame>.topline{top:48px;left:50%;right:auto;transform:translateX(-50%)}.plays-tray{top:48px;left:183px;padding:8px;font-size:10px;border-radius:9px}.card-frame>.turn-indicator{top:auto;bottom:242px;left:50%;right:auto;transform:translateX(-50%);padding:4px}.card-frame>.turn-indicator button{padding:9px 20px;font-size:12px}.card-frame .island-map{padding-bottom:274px}}
 @media(max-height:600px) and (min-width:741px){.card-frame>.turn-indicator{top:auto;bottom:236px}.card-frame .island-map{padding-bottom:260px}}
+
+.rule-config select{min-width:0;width:180px;max-width:55%;font-size:12px;padding:8px;margin-left:auto}

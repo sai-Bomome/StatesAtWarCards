@@ -57,3 +57,5 @@ Approved implemented face finish: centered title, original rounded corner catego
 Card hover/focus uses a clearly visible gold outline without lifting an unselected card. Selected cards lift 28px with a stronger gold outline, including a static lift when reduced motion is enabled.
 
 Province troop/building/siege symbols reuse cardIcon artwork: helmet, castle, monolith and siege. Preserve light map-symbol color and team-colored cutouts; do not restore sprite/emoji substitutes for these markers.
+
+Optional passive troop growth: growthTroops (default 0), growthMode (0 owner turn starts, 1 every N completed rounds), growthEveryRounds (default 2). Turn mode includes the opener. Round mode grows both owners once when the next round begins after N completed rounds. Never grow neutral land; add active troops without touching blocked counts, and stack with barracks.
