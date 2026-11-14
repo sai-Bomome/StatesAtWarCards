@@ -16,7 +16,7 @@ export const CARDS={
  capture:{name:'Capture',icon:'flag',description:'Capture adjacent land and keep its building. Siege is optional.'},
  breakSiege:{name:'Break Siege',icon:'flag',description:'Unblock your troops or counter a Siege.'}
 };
-export const DEFAULT_COPIES={reinforce1:10,reinforce2:5,reinforce5:2,reinforce10:1,move:6,double:2,barracks:3,monument:3,sabotage:3,demolish:3,attack:20,siege:2,capture:2,breakSiege:3};
+export const DEFAULT_COPIES={reinforce1:15,reinforce2:10,reinforce5:3,reinforce10:1,move:6,double:3,barracks:6,monument:3,sabotage:3,demolish:3,attack:20,siege:4,capture:3,breakSiege:3};
 export const RULE_FIELDS=[
  {key:'monumentMinTroops',label:'Troops to build a monument',default:5,min:1,max:100},
  {key:'barracksProduction',label:'Barracks troops per turn',default:1,min:0,max:50},
@@ -27,9 +27,9 @@ export const RULE_FIELDS=[
  {key:'attackPercent',label:'Troops contributed per attacking province (%)',default:50,min:1,max:100},
  {key:'siegeBlockPercent',label:'Siege blocked troops (%)',default:50,min:0,max:100},
  {key:'monumentsToWin',label:'Monuments to win',default:3,min:1,max:16},
- {key:'neutralTroopsEnabled',label:'Starting neutral troops',default:false,type:'boolean'},
+ {key:'neutralTroopsEnabled',label:'Starting neutral troops',default:true,type:'boolean'},
  {key:'neutralTroopsMin',label:'Minimum neutral troops',default:1,min:0,max:100},
- {key:'neutralTroopsMax',label:'Maximum neutral troops',default:10,min:0,max:100},
+ {key:'neutralTroopsMax',label:'Maximum neutral troops',default:3,min:0,max:100},
  {key:'startingTroops',label:'Starting troops per player',default:2,min:1,max:100},
  {key:'startingHand',label:'Starting hand',default:5,min:1,max:10},
  {key:'emptyHandDraw',label:'Cards drawn when starting with an empty hand',default:5,min:1,max:10},

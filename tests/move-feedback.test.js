@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createGame,applyCommand,viewFor} from '../game.js';
 import {describeMove,suggestAttack} from '../move-feedback.js';
 
-function fixture(type){const s=createGame(42);s.states.forEach(t=>delete t.neighbors);s.turn=0;s.players[0].hand=[{id:100,type}];return s;}
+function fixture(type){const s=createGame(42,{neutralTroopsEnabled:false});s.states.forEach(t=>delete t.neighbors);s.turn=0;s.players[0].hand=[{id:100,type}];return s;}
 function resolve(s,cmd){const command={...cmd,revision:s.revision},next=applyCommand(s,0,command);return {next,event:describeMove(s,next,command)};}
 test('reinforcement feedback states real changes without mutating simulation',()=>{const s=fixture('reinforce5'),copy=structuredClone(s),{next,event}=resolve(s,{type:'play',card:100,target:0});assert.deepEqual(s,copy);assert.equal(event.kind,'reinforce5');assert.equal(event.id,next.revision);assert.equal(event.marks[0].text,'+5');assert.match(event.summary,/2 → 7/);assert.equal(event.arrow,null);});
 test('attack feedback reports commitment, bilateral losses and truthful capture or hold',()=>{for(const defenders of [0,1,3,5]){const s=fixture('attack');s.states[0].troops=5;s.config.attackPercent=60;s.states[1].owner=1;s.states[1].troops=defenders;const {next,event}=resolve(s,{type:'play',card:100,sources:[0],target:1});assert.deepEqual(event.arrows,[{from:0,to:1,amount:3}]);assert.equal(event.marks[0].text,'−3');assert.equal(event.marks[1].kind,defenders<3?'capture':'damage');assert.match(event.summary,new RegExp(`each side lost ${Math.min(3,defenders)}`));assert.match(event.summary,defenders<3?/captured with/:/no capture/);assert.equal(next.states[0].troops,2);}});

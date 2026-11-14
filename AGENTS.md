@@ -44,7 +44,7 @@ Approved ocean defaults: shallow #3DCAEC, deep #3CA8EC, darkening speed/falloff 
 
 Ocean contours are optional and OFF by default. Render a solid #3DCAEC ocean without generating contour paths when disabled. The Ocean panel toggle remembers the local preference; reset turns contours off. Preserve the contour palette/rate for optional use.
 
-Current cards supersede Claim/Army: the configurable 65-card default deck and building/siege rules are documented in README.md and game.js. Keep monument cards physically on the board while built, never in the recycle pile. Show active + blocked counts, a minimal building symbol, and prosperity count. Siege responses are explicit host-validated decisions; honor private local handoff and never gate them on animation or a timer. No majority victory: win immediately with 3 monuments or annihilation. Round-limit scoring remains unspecified.
+Current cards supersede Claim/Army: the configurable 83-card default deck and building/siege rules are documented in README.md and game.js. Keep monument cards physically on the board while built, never in the recycle pile. Show active + blocked counts, a minimal building symbol, and prosperity count. Siege responses are explicit host-validated decisions; honor private local handoff and never gate them on animation or a timer. No majority victory: win immediately with 3 monuments or annihilation. Round-limit scoring remains unspecified.
 
 Gameplay tunables are defined by RULE_FIELDS in game.js. Host/local controls, validation, rule text, card descriptions and feedback must all read the authoritative match config. Attack defaults to 20 copies.
 
@@ -72,7 +72,7 @@ A besieged barracks never produces at turn start, even when blocked count is zer
 
 Latest capture rule: Siege is optional for both barracks and monuments. Attack/Capture have the same adjacency and troop-source eligibility; Attack demolishes any building (including monuments) on success and recycles its physical card, while Capture preserves it. Never grant monument provinces Attack immunity. Siege still blocks active troops and stops barracks production.
 
-Optional starting neutral troops use neutralTroopsEnabled (false), neutralTroopsMin (1), neutralTroopsMax (10). Map actual raster province area monotonically to bounds, neutral provinces only. Show dark card-style helmet/count for guarded neutrals; keep zero neutral provinces blank.
+Optional starting neutral troops use neutralTroopsEnabled (true), neutralTroopsMin (1), neutralTroopsMax (3). Map actual raster province area monotonically to bounds, neutral provinces only. Show dark card-style helmet/count for guarded neutrals; keep zero neutral provinces blank.
 
 Move Troops is now implemented (move, 6 copies by default). Blue helmet category with move-troops emblem. Friendly shared-edge path required; move only active troops, leave at least 1 active behind, preserve blocked troops/buildings/ownership. Source → destination → bottom amount/confirm; no distant popup. Preview and accepted feedback follow the actual friendly route.
 
@@ -83,3 +83,5 @@ Feedback names played cards and labels troop-change sources. Turn production use
 End-of-match presentation uses a large viewer-relative Victory/Defeat heading, winner name and explicit prosperity/annihilation reason with the configured monument count. Keep it as a contained high-contrast result card inside the frame, not a full-screen backdrop. Hide End Turn/attack controls when the result is present.
 
 The final result replaces the bottom hand, not the central map. Keep the Victory/Defeat heading and winner on a transparent background; use a compact dark background only for the reason text. Hide the hand, turn actions, remaining-play tray and transient recap after winning. Preserve the visible battlefield and profile badges.
+
+Approved preset from user screenshot: neutral defenders ON, range 1–3; deck 83 cards: reinforce1 15, reinforce2 10, reinforce5 3, reinforce10 1, move 6, double 3, barracks 6, monument 3, sabotage 3, demolish 3, attack 20, siege 4, capture 3, breakSiege 3. All other rule defaults remain as shown: monument minimum 5, barracks 1, passive growth 0/owner-turn/2-round interval, sabotage 3, attack 50%, siege 50%, victory 3 monuments, starting troops 2, starting hand 5, empty refill 5, draw 2, plays 3, hand limit 7. Reset controls must restore this preset.

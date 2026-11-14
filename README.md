@@ -11,7 +11,7 @@ The current workstation uses a node_modules junction to the original project's i
 ## Rules
 
 - Two players, 16 provinces, actual shared-edge adjacency. Start with one province and 2 active troops each.
-- Default shared deck: 65 cards. Reinforcements +1 ×10, +2 ×5, +5 ×2, +10 ×1; Move Troops ×6; Double ×2; Barracks ×3; Monument ×3; Sabotage ×3; Demolish ×3; Attack ×20; Siege ×2; Capture ×2; Break Siege ×3.
+- Default shared deck: 83 cards. Reinforcements +1 ×15, +2 ×10, +5 ×3, +10 ×1; Move Troops ×6; Double ×3; Barracks ×6; Monument ×3; Sabotage ×3; Demolish ×3; Attack ×20; Siege ×4; Capture ×3; Break Siege ×3.
 - Host/local setup exposes 0–100 copies of every card, live deck total, individual resets and full reset. At least 12 cards required. Settings are locked into the authoritative match and shared in guest snapshots. Fewer than 3 Monument cards makes prosperity unavailable; with extra copies, holding any 3 wins.
 - Deal 5 each, draw 2 at turn start (including opener), play up to 3, discard to 7 before passing. Discarding costs no action. Played/discarded cards recycle.
 - Reinforce adds its printed value in active troops. Attach Double before tapping the destination, in either selection order; both cards together cost 2 plays. No stacking doublers.
@@ -96,7 +96,7 @@ Siege is optional for all captures. Attack can take a monument province and demo
 
 ## Starting neutral garrisons
 
-Host/local setup has a toggle (default off) and linked minimum/maximum sliders with numeric inputs (default 1–10, allowed 0–100). Enabled garrisons scale linearly, rounded to whole troops, between the smallest and largest initially neutral provinces by raster land area. Equal-size provinces use the minimum; equal bounds give every neutral that fixed count. Player starting provinces keep startingTroops. Assignment is deterministic and host-authoritative, consumes no deck RNG, and happens only at match creation. Guarded neutral provinces show dark helmet/count markers; zero-troop neutral provinces stay blank.
+Host/local setup has a toggle (default on) and linked minimum/maximum sliders with numeric inputs (default 1–3, allowed 0–100). Enabled garrisons scale linearly, rounded to whole troops, between the smallest and largest initially neutral provinces by raster land area. Equal-size provinces use the minimum; equal bounds give every neutral that fixed count. Player starting provinces keep startingTroops. Assignment is deterministic and host-authoritative, consumes no deck RNG, and happens only at match creation. Guarded neutral provinces show dark helmet/count markers; zero-troop neutral provinces stay blank.
 
 ## Move Troops
 
