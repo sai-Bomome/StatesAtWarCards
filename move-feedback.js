@@ -1,4 +1,4 @@
-import {adjacent, label, CARDS, multiAttackPreview} from './game.js';
+import {adjacent, label, CARDS, multiAttackPreview, movementRoute} from './game.js';
 
 // Presentation is derived from accepted commands, never from animation completion.
 export function describeMove(before, after, command) {
@@ -21,7 +21,9 @@ export function describeMove(before, after, command) {
     if (!card) return null;
     event.kind = card.type;
     const old = before.states[command.target], next = after.states[command.target];
-    if (CARDS[card.type]?.value) {
+    if(card.type==='move'){
+      const route=movementRoute(before,actor,command.source,command.target);event.arrows=route.slice(1).map((id,i)=>({from:route[i],to:id,amount:command.amount}));event.summary=after.log[0];event.marks.push({target:command.source,kind:'spent',text:`−${command.amount}`},{target:command.target,kind:'gain',text:`+${command.amount}`});
+    } else if (CARDS[card.type]?.value) {
       event.summary = `${name} reinforced ${label(next)} · ${old.troops} → ${next.troops} active troops`;
       event.marks.push({target: next.id, kind: 'gain', text: '+'+(next.troops-old.troops)});
     } else if (!['attack','capture'].includes(card.type)) {

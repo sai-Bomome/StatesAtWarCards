@@ -11,7 +11,7 @@ The current workstation uses a node_modules junction to the original project's i
 ## Rules
 
 - Two players, 16 provinces, actual shared-edge adjacency. Start with one province and 2 active troops each.
-- Default shared deck: 59 cards. Reinforcements +1 ×10, +2 ×5, +5 ×2, +10 ×1; Double ×2; Barracks ×3; Monument ×3; Sabotage ×3; Demolish ×3; Attack ×20; Siege ×2; Capture ×2; Break Siege ×3.
+- Default shared deck: 65 cards. Reinforcements +1 ×10, +2 ×5, +5 ×2, +10 ×1; Move Troops ×6; Double ×2; Barracks ×3; Monument ×3; Sabotage ×3; Demolish ×3; Attack ×20; Siege ×2; Capture ×2; Break Siege ×3.
 - Host/local setup exposes 0–100 copies of every card, live deck total, individual resets and full reset. At least 12 cards required. Settings are locked into the authoritative match and shared in guest snapshots. Fewer than 3 Monument cards makes prosperity unavailable; with extra copies, holding any 3 wins.
 - Deal 5 each, draw 2 at turn start (including opener), play up to 3, discard to 7 before passing. Discarding costs no action. Played/discarded cards recycle.
 - Reinforce adds its printed value in active troops. Attach Double before tapping the destination, in either selection order; both cards together cost 2 plays. No stacking doublers.
@@ -97,3 +97,7 @@ Siege is optional for all captures. Attack can take a monument province and demo
 ## Starting neutral garrisons
 
 Host/local setup has a toggle (default off) and linked minimum/maximum sliders with numeric inputs (default 1–10, allowed 0–100). Enabled garrisons scale linearly, rounded to whole troops, between the smallest and largest initially neutral provinces by raster land area. Equal-size provinces use the minimum; equal bounds give every neutral that fixed count. Player starting provinces keep startingTroops. Assignment is deterministic and host-authoritative, consumes no deck RNG, and happens only at match creation. Guarded neutral provinces show dark helmet/count markers; zero-troop neutral provinces stay blank.
+
+## Move Troops
+
+Move Troops is implemented with 6 default copies (editable in deck setup). Select the card, an owned source with at least 2 active troops, then any different owned destination connected by an entirely friendly shared-border route. Choose the amount in the bottom tray; by default all available active troops move, leaving 1 behind. Blocked troops cannot move and stay blocked; active troops can move into or out of besieged land. Intermediate provinces, buildings and ownership remain unchanged. One confirmation spends one card/play. The host validates ownership, connectivity and amount, and all peers receive route arrows plus endpoint troop changes. Tap the selected source again or Cancel to revise without cost.

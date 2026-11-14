@@ -5,6 +5,7 @@ export const CARDS={
  reinforce2:{name:'Reinforce +2',icon:'helmet',value:2,description:'Add 2 active troops to an owned province.'},
  reinforce5:{name:'Reinforce +5',icon:'helmet',value:5,description:'Add 5 active troops to an owned province.'},
  reinforce10:{name:'Reinforce +10',icon:'helmet',value:10,description:'Add 10 active troops to an owned province.'},
+ move:{name:'Move Troops',icon:'helmet',description:'Move active troops through connected friendly land. Leave 1 behind.'},
  double:{name:'Double',icon:'helmet',description:'Pair with Reinforcements. Together cost 2 plays.'},
  barracks:{name:'Barracks',icon:'flag',description:'Build: gain 1 active troop here each future turn.'},
  monument:{name:'Monument',icon:'flag',description:'Build with 5 active troops. Control 3 to win.'},
@@ -15,7 +16,7 @@ export const CARDS={
  capture:{name:'Capture',icon:'flag',description:'Capture adjacent land and keep its building. Siege is optional.'},
  breakSiege:{name:'Break Siege',icon:'flag',description:'Unblock your troops or counter a Siege.'}
 };
-export const DEFAULT_COPIES={reinforce1:10,reinforce2:5,reinforce5:2,reinforce10:1,double:2,barracks:3,monument:3,sabotage:3,demolish:3,attack:20,siege:2,capture:2,breakSiege:3};
+export const DEFAULT_COPIES={reinforce1:10,reinforce2:5,reinforce5:2,reinforce10:1,move:6,double:2,barracks:3,monument:3,sabotage:3,demolish:3,attack:20,siege:2,capture:2,breakSiege:3};
 export const RULE_FIELDS=[
  {key:'monumentMinTroops',label:'Troops to build a monument',default:5,min:1,max:100},
  {key:'barracksProduction',label:'Barracks troops per turn',default:1,min:0,max:50},
@@ -76,8 +77,14 @@ export function createGame(seed=Date.now()>>>0,config={},profiles=[],secretSeed=
 }
 export const livingPlayers=s=>s.players.map((_,i)=>i).filter(i=>s.states.some(t=>t.owner===i));
 export const standings=s=>s.players.map((p,id)=>({id,name:p.name,states:s.states.filter(t=>t.owner===id).length,troops:s.states.filter(t=>t.owner===id).reduce((a,t)=>a+t.troops,0),monuments:s.states.filter(t=>t.owner===id&&t.building==='monument').length})).sort((a,b)=>b.states-a.states);
+export function movementRoute(s,actor,source,target){
+ if(!Number.isInteger(source)||!Number.isInteger(target)||source===target||s.states[source]?.owner!==actor||s.states[target]?.owner!==actor)return null;
+ const queue=[source],previous=new Map([[source,null]]);for(const id of queue){for(const t of s.states)if(t.owner===actor&&!previous.has(t.id)&&adjacent(s.states[id],t)){previous.set(t.id,id);if(t.id===target){const route=[target];while(route[0]!==source)route.unshift(previous.get(route[0]));return route;}queue.push(t.id);}}return null;
+}
+export function movementPreview(s,actor,source,target,amount){const route=movementRoute(s,actor,source,target),a=s.states[source];if(!route)fail('Choose a different owned province connected through friendly land.');if(!Number.isInteger(amount)||amount<1||amount>=a.troops)fail('Move active troops only and leave at least 1 behind.');return {route,amount,remaining:a.troops-amount,destination:s.states[target].troops+amount};}
 export function legalTarget(s,actor,type,id){
  const t=s.states[id];if(!t)return false;const near=s.states.some(a=>a.owner===actor&&adjacent(a,t));
+ if(type==='move')return t.owner===actor&&t.troops>1&&s.states.some(other=>movementRoute(s,actor,id,other.id));
  if(CARDS[type]?.value)return t.owner===actor;
  if(type==='barracks'||type==='monument')return t.owner===actor&&!t.building&&(type!=='monument'||t.troops>=s.config.monumentMinTroops);
  if(type==='breakSiege')return t.owner===actor&&t.besieged;
@@ -113,10 +120,11 @@ export function applyCommand(input,actor,cmd){
    const passive=passiveGrowth(s),beforeDraw=s.players[s.turn].hand.length,drawCount=beforeDraw===0?(s.config.emptyHandDraw??5):s.config.drawPerTurn;draw(s,s.turn,drawCount);s.lastDrawCount=s.players[s.turn].hand.length-beforeDraw;log(`${s.players[s.turn].name}'s turn: drew ${s.lastDrawCount} cards.${barracksGain?` Barracks added ${barracksGain} troops.`:''}${passive?` Passive growth added ${passive} troops.`:''}`);
   }else if(cmd.type==='play'){
    if(s.actions<1)fail('No card plays left. End your turn.');const card=p.hand.find(c=>c.id===cmd.card);if(!card)fail('Choose a card from your hand.');
-   if(!Number.isInteger(cmd.target)||!legalTarget(s,actor,card.type,cmd.target))fail('Choose a highlighted province.');
+   if(!Number.isInteger(cmd.target)||!(card.type==='move'?s.states[cmd.target]?.owner===actor:legalTarget(s,actor,card.type,cmd.target)))fail('Choose a highlighted province.');
    const t=s.states[cmd.target];let cost=1;const spent=[card.id];
    if(cmd.booster!=null&&!CARDS[card.type]?.value)fail('Double only pairs with reinforcements.');
    if(CARDS[card.type]?.value){let n=CARDS[card.type].value;if(cmd.booster!=null){const boost=p.hand.find(c=>c.id===cmd.booster&&c.type==='double');if(!boost||s.actions<2)fail('Double requires its own card and a second play.');n*=2;cost=2;spent.push(boost.id);}t.troops+=n;log(`${p.name} reinforced ${label(t)} (+${n}).`);}
+   else if(card.type==='move'){const r=movementPreview(s,actor,cmd.source,cmd.target,cmd.amount);s.states[cmd.source].troops=r.remaining;t.troops=r.destination;log(`${p.name} moved ${r.amount} active troops from ${label(s.states[cmd.source])} to ${label(t)}.`);}
    else if(card.type==='barracks'||card.type==='monument'){t.building=card.type;t.buildingCard={...card};log(`${p.name} built ${card.type} at ${label(t)}.`);}
    else if(card.type==='sabotage'){const loss=Math.min(s.config.sabotageDamage,t.troops);t.troops-=loss;log(`${p.name} sabotaged ${label(t)} (-${loss} active troops).`);}
    else if(card.type==='demolish'){if(t.buildingCard)s.discard.push(t.buildingCard);t.buildingCard=null;t.building=null;log(`${p.name} demolished the barracks at ${label(t)}.`);}
