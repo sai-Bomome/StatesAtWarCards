@@ -101,3 +101,7 @@ Host/local setup has a toggle (default off) and linked minimum/maximum sliders w
 ## Move Troops
 
 Move Troops is implemented with 6 default copies (editable in deck setup). Select the card, an owned source with at least 2 active troops, then any different owned destination connected by an entirely friendly shared-border route. Choose the amount in the bottom tray; by default all available active troops move, leaving 1 behind. Blocked troops cannot move and stay blocked; active troops can move into or out of besieged land. Intermediate provinces, buildings and ownership remain unchanged. One confirmation spends one card/play. The host validates ownership, connectivity and amount, and all peers receive route arrows plus endpoint troop changes. Tap the selected source again or Cancel to revise without cost.
+
+## Play vs Bot
+
+Choose Play vs Bot in the lobby, configure the same deck/rules, then start. You are the first profile (Azure by default); Field Bot is the opponent. The normal random opening player remains. No pass-and-play handoff or network connection is needed. The bot uses only its redacted player view, follows the regular host validator, plays short spaced-out moves with normal feedback, handles Siege reactions, discards to the limit and passes. Its simple greedy priorities favor winning captures/monuments, safe expansion, reinforcements, buildings and moving rear reserves toward the front. It is a basic playtest opponent, not a search-based AI. Closing/leaving the match cancels pending bot work.

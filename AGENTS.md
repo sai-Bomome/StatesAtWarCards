@@ -75,3 +75,5 @@ Latest capture rule: Siege is optional for both barracks and monuments. Attack/C
 Optional starting neutral troops use neutralTroopsEnabled (false), neutralTroopsMin (1), neutralTroopsMax (10). Map actual raster province area monotonically to bounds, neutral provinces only. Show dark card-style helmet/count for guarded neutrals; keep zero neutral provinces blank.
 
 Move Troops is now implemented (move, 6 copies by default). Blue helmet category with move-troops emblem. Friendly shared-edge path required; move only active troops, leave at least 1 active behind, preserve blocked troops/buildings/ownership. Source → destination → bottom amount/confirm; no distant popup. Preview and accepted feedback follow the actual friendly route.
+
+Play vs Bot is an offline solo mode: human slot 0, Field Bot slot 1, no handoff. chooseBotCommand receives viewFor(authority,1), never the full authority or hidden opponent hand/deck. Bot commands must pass applyCommand; handle out-of-turn Siege responses, discard and end turn. Timers are revision/session guarded and canceled on leaving; do not use feedback animation completion to advance AI.
