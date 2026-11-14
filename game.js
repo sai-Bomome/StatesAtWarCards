@@ -23,10 +23,12 @@ export const RULE_FIELDS=[
  {key:'growthMode',label:'Passive growth timing',default:0,min:0,max:1,options:[{value:0,label:'Each owner turn start'},{value:1,label:'Every N completed rounds'}]},
  {key:'growthEveryRounds',label:'Rounds between passive growth (round mode)',default:2,min:1,max:100},
  {key:'sabotageDamage',label:'Sabotage troop loss',default:3,min:1,max:100},
+ {key:'attackPercent',label:'Troops contributed per attacking province (%)',default:50,min:1,max:100},
  {key:'siegeBlockPercent',label:'Siege blocked troops (%)',default:50,min:0,max:100},
  {key:'monumentsToWin',label:'Monuments to win',default:3,min:1,max:16},
  {key:'startingTroops',label:'Starting troops per player',default:2,min:1,max:100},
  {key:'startingHand',label:'Starting hand',default:5,min:1,max:10},
+ {key:'emptyHandDraw',label:'Cards drawn when starting with an empty hand',default:5,min:1,max:10},
  {key:'drawPerTurn',label:'Cards drawn per turn',default:2,min:1,max:10},
  {key:'actionsPerTurn',label:'Card plays per turn',default:3,min:1,max:6},
  {key:'handLimit',label:'Hand limit after turn',default:7,min:1,max:20}
@@ -81,6 +83,13 @@ export function legalTarget(s,actor,type,id){
  return false;
 }
 export function attackPreview(s,source,target,amount){const a=s.states[source],b=s.states[target];if(!a||!b||!adjacent(a,b)||!Number.isInteger(amount)||amount<1||amount>=a.troops)fail('Choose adjacent provinces and leave at least one active troop behind.');return {capture:amount>b.troops,survivors:Math.max(0,amount-b.troops),remaining:Math.max(0,b.troops-amount)};}
+export const troopContribution=(t,config)=>t?.troops>1?Math.min(t.troops-1,Math.max(1,Math.floor(t.troops*(config.attackPercent??50)/100))):0;
+export function multiAttackPreview(s,actor,target,sourceIds){
+ const t=s.states[target];if(!t||t.owner===actor)fail('Choose enemy or neutral land.');
+ if(!Array.isArray(sourceIds)||!sourceIds.length||sourceIds.length>s.states.length||new Set(sourceIds).size!==sourceIds.length)fail('Select distinct attacking provinces.');
+ const contributions=sourceIds.map(id=>{const a=s.states[id];if(!Number.isInteger(id)||a?.owner!==actor||!adjacent(a,t)||!troopContribution(a,s.config))fail('Each source must be an adjacent owned province with at least 2 active troops.');return {source:id,amount:troopContribution(a,s.config)};});
+ const total=contributions.reduce((n,c)=>n+c.amount,0);return {contributions,total,capture:total>t.troops,survivors:Math.max(0,total-t.troops),remaining:Math.max(0,t.troops-total)};
+}
 function checkVictory(s){for(let i=0;i<2;i++){if(s.states.filter(t=>t.owner===i&&t.building==='monument').length>=s.config.monumentsToWin){s.winner=i;s.winReason=`${s.config.monumentsToWin} monuments`;}else if(!s.states.some(t=>t.owner===1-i)){s.winner=i;s.winReason='annihilation';}}}
 export function applyCommand(input,actor,cmd){
  const s=structuredClone(input);if(s.winner!==null)fail('The match has ended.');if(cmd.revision!==s.revision)fail('The board changed. Try again.');const p=s.players[actor];if(!p)fail('Unknown player.');const log=m=>s.log.unshift(m);
@@ -95,7 +104,7 @@ export function applyCommand(input,actor,cmd){
   else if(cmd.type==='end'){
    if(p.hand.length>s.config.handLimit)fail(`Discard down to ${s.config.handLimit} before ending your turn.`);s.turn=1-actor;s.actions=s.config.actionsPerTurn;if(s.turn===s.first)s.round++;
    for(const t of s.states)if(t.owner===s.turn&&t.building==='barracks')t.troops+=s.config.barracksProduction;
-   const passive=passiveGrowth(s);draw(s,s.turn,s.config.drawPerTurn);log(`${s.players[s.turn].name}'s turn: drew ${s.config.drawPerTurn} cards; barracks reinforced.${passive?` Passive growth added ${passive} troops.`:''}`);
+   const passive=passiveGrowth(s),beforeDraw=s.players[s.turn].hand.length,drawCount=beforeDraw===0?(s.config.emptyHandDraw??5):s.config.drawPerTurn;draw(s,s.turn,drawCount);s.lastDrawCount=s.players[s.turn].hand.length-beforeDraw;log(`${s.players[s.turn].name}'s turn: drew ${s.lastDrawCount} cards; barracks reinforced.${passive?` Passive growth added ${passive} troops.`:''}`);
   }else if(cmd.type==='play'){
    if(s.actions<1)fail('No card plays left. End your turn.');const card=p.hand.find(c=>c.id===cmd.card);if(!card)fail('Choose a card from your hand.');
    if(!Number.isInteger(cmd.target)||!legalTarget(s,actor,card.type,cmd.target))fail('Choose a highlighted province.');
@@ -108,7 +117,7 @@ export function applyCommand(input,actor,cmd){
    else if(card.type==='siege'){s.pendingSiege={target:t.id,attacker:actor};log(`${p.name} besieges ${label(t)} — defender may counter.`);}
    else if(card.type==='breakSiege'){t.troops+=t.blocked||0;t.blocked=0;t.besieged=false;log(`${p.name} broke the siege at ${label(t)}.`);}
    else if(card.type==='attack'||card.type==='capture'){
-    const source=s.states[cmd.source];if(!Number.isInteger(cmd.source)||source?.owner!==actor)fail('Choose your attacking province.');const result=attackPreview(s,cmd.source,cmd.target,cmd.amount);source.troops-=cmd.amount;
+    const result=multiAttackPreview(s,actor,cmd.target,cmd.sources);for(const part of result.contributions)s.states[part.source].troops-=part.amount;
     if(result.capture){t.owner=actor;t.troops=result.survivors;t.blocked=0;t.besieged=false;if(card.type==='attack'){if(t.buildingCard)s.discard.push(t.buildingCard);t.buildingCard=null;t.building=null;}}else t.troops=result.remaining;
     log(`${p.name} used ${CARDS[card.type].name} at ${label(t)}: ${result.capture?'captured with '+result.survivors:result.remaining+' active defenders remain'}.`);
    }else fail('Pair Double with a reinforcement card.');

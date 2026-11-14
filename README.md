@@ -81,3 +81,9 @@ Match HUD: End Turn is centered above the bottom hand, remaining card plays have
 ## Optional passive troop growth
 
 Setup exposes troops per owned province (0 disables it), timing (each owner turn start or every N completed rounds), and the round interval. Turn timing includes the opening turn and affects only the incoming owner. Round timing grows both players’ currently owned provinces once after N complete rounds: N=2 first triggers when round 3 begins. Neutral land never grows. Troops arrive active, blocked counts stay unchanged, and barracks production stacks on top. Host snapshots carry these settings; accepted end-turn events show troop gains on the map.
+
+## Combined attacks
+
+Select Attack/Capture, choose a legal target, then toggle any adjacent owned provinces with at least 2 active troops. Each sends the configured percentage (default 50%), rounded down with at least 1 sent and 1 retained. Blocked troops never contribute. Preview arrows show individual commitments; the bottom dock shows the combined total and forecast. Confirm once to spend one card/play. All surviving attackers occupy the captured target; source garrisons stay put. Changing targets clears source choices. The host validates every source and computes commitments, ignoring client-supplied amounts.
+
+Empty-hand rule: at the start of your turn, draw emptyHandDraw cards (default 5) instead of the normal draw if your hand is empty. Drawing never happens immediately after playing the last card. Logs and feedback report the actual number drawn.

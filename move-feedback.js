@@ -1,4 +1,4 @@
-import {adjacent, label, CARDS} from './game.js';
+import {adjacent, label, CARDS, multiAttackPreview} from './game.js';
 
 // Presentation is derived from accepted commands, never from animation completion.
 export function describeMove(before, after, command) {
@@ -10,7 +10,7 @@ export function describeMove(before, after, command) {
     event.kind = after.winner === null ? 'turn' : 'victory';
     for(const t of after.states){const old=before.states[t.id];if(t.troops>old.troops)event.marks.push({target:t.id,kind:'gain',text:'+'+(t.troops-old.troops)});}
     event.summary = after.winner === null
-      ? `${after.players[after.turn].name}'s turn · drew ${after.config.drawPerTurn} cards · ${after.config.actionsPerTurn} plays`
+      ? `${after.players[after.turn].name}'s turn · drew ${after.lastDrawCount??after.config.drawPerTurn} cards · ${after.config.actionsPerTurn} plays`
       : `${after.players[after.winner].name} wins: ${after.winReason}`;
   } else if (['allowSiege','counterSiege'].includes(command.type)) {
     event.summary=after.log[0];event.kind='siege';event.marks.push({target:before.pendingSiege.target,kind:'gain',text:command.type==='counterSiege'?'Unblocked':'Siege'});
@@ -27,13 +27,13 @@ export function describeMove(before, after, command) {
     } else if (!['attack','capture'].includes(card.type)) {
       event.summary=after.log[0];event.marks.push({target:next.id,kind:'gain',text:CARDS[card.type].name});
     } else {
-      const from = before.states[command.source];
-      const losses = Math.min(command.amount, old.troops);
-      const captured = next.owner !== old.owner;
-      event.arrow = {from: from.id, to: next.id, amount: command.amount};
-      event.summary = `${name}: ${label(from)} → ${label(next)} · sent ${command.amount} · each side lost ${losses} · ${captured ? `captured with ${next.troops} ${next.troops===1?'survivor':'survivors'}` : `${next.troops} defenders remain; no capture`}`;
-      event.marks.push({target: from.id, kind: 'spent', text: `−${command.amount}`});
-      event.marks.push({target: next.id, kind: captured ? 'capture' : 'damage', text: captured ? `⚑ ${next.troops}` : `−${losses}`});
+      const parts=command.sources!==undefined?multiAttackPreview(before,actor,command.target,command.sources).contributions:[{source:command.source,amount:command.amount}];
+      const total=parts.reduce((n,p)=>n+p.amount,0),losses=Math.min(total,old.troops),captured=next.owner!==old.owner;
+      const arrows=parts.map(p=>({from:p.source,to:next.id,amount:p.amount}));
+      if(command.sources!==undefined)event.arrows=arrows;else event.arrow=arrows[0];
+      event.summary=`${name}: ${parts.map(p=>label(before.states[p.source])).join(' + ')} → ${label(next)} · sent ${total} · each side lost ${losses} · ${captured?`captured with ${next.troops} ${next.troops===1?'survivor':'survivors'}`:`${next.troops} defenders remain; no capture`}`;
+      for(const p of parts)event.marks.push({target:p.source,kind:'spent',text:`−${p.amount}`});
+      event.marks.push({target:next.id,kind:captured?'capture':'damage',text:captured?`⚑ ${next.troops}`:`−${losses}`});
     }
   } else return null;
   return event;

@@ -59,3 +59,7 @@ Card hover/focus uses a clearly visible gold outline without lifting an unselect
 Province troop/building/siege symbols reuse cardIcon artwork: helmet, castle, monolith and siege. Preserve light map-symbol color and team-colored cutouts; do not restore sprite/emoji substitutes for these markers.
 
 Optional passive troop growth: growthTroops (default 0), growthMode (0 owner turn starts, 1 every N completed rounds), growthEveryRounds (default 2). Turn mode includes the opener. Round mode grows both owners once when the next round begins after N completed rounds. Never grow neutral land; add active troops without touching blocked counts, and stack with barracks.
+
+Attack/Capture now use target-first multi-source planning. Tap each adjacent owned source to toggle it, with arrows and contribution labels; host computes attackPercent (default 50) of each active troop count, rounding down with minimum 1 committed and 1 retained. One card/play resolves all contributions atomically. Use the compact bottom attack dock above the cards, never a target-side popup or numeric stepper.
+
+Empty hands at turn start draw emptyHandDraw (default 5) instead of drawPerTurn; no immediate refill upon playing the last card. Keep log/feedback counts accurate.

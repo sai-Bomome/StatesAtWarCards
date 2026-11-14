@@ -272,3 +272,6 @@
 @media(max-height:600px) and (min-width:741px){.card-frame>.turn-indicator{top:auto;bottom:236px}.card-frame .island-map{padding-bottom:260px}}
 
 .rule-config select{min-width:0;width:180px;max-width:55%;font-size:12px;padding:8px;margin-left:auto}
+
+.attack-dock{position:absolute;bottom:288px;left:50%;transform:translateX(-50%);z-index:25;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:13px;background:#193f4b;color:#fff8e9;border:1px solid #e5c37d;max-width:calc(100% - 24px);box-shadow:0 4px 12px #12374330}.attack-dock strong{display:block;font-size:13px}.attack-dock small{display:block;font-size:11px;margin-top:4px}.attack-dock button{white-space:nowrap;padding:10px 14px}.card-frame>.turn-indicator.planning-attack{visibility:hidden}.source-contribution{fill:#ffdf7b;stroke:#233c4a;stroke-width:1px;paint-order:stroke;font-size:15px;font-weight:800;pointer-events:none}
+@media(max-width:1100px){.attack-dock{bottom:270px}}@media(max-width:740px){.attack-dock{bottom:242px;gap:5px;padding:7px;flex-wrap:wrap;justify-content:center}.attack-dock strong{font-size:11px}.attack-dock small{font-size:10px}.attack-dock button{font-size:11px;padding:8px 10px}}@media(max-height:600px) and (min-width:741px){.attack-dock{bottom:236px}}
