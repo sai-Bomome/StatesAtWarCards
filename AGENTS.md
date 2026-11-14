@@ -63,3 +63,5 @@ Optional passive troop growth: growthTroops (default 0), growthMode (0 owner tur
 Attack/Capture now use target-first multi-source planning. Tap each adjacent owned source to toggle it, with arrows and contribution labels; host computes attackPercent (default 50) of each active troop count, rounding down with minimum 1 committed and 1 retained. One card/play resolves all contributions atomically. Use the compact bottom attack dock above the cards, never a target-side popup or numeric stepper.
 
 Empty hands at turn start draw emptyHandDraw (default 5) instead of drawPerTurn; no immediate refill upon playing the last card. Keep log/feedback counts accurate.
+
+On choosing an Attack/Capture target, automatically select every adjacent owned province able to contribute active troops. Preserve manual toggles while staying on that target; recompute the full eligible selection when switching targets. Confirmation remains required.
