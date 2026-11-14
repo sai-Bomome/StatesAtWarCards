@@ -109,3 +109,7 @@ Choose Play vs Bot in the lobby, configure the same deck/rules, then start. You 
 ## Source-labeled feedback
 
 Accepted card plays show a named card chip and name in the recap, including paired Double Reinforcements. Map count badges identify Reinforcements, Move Troops, Attack/Capture and Break Siege. Turn-start gains carry an authoritative per-province source breakdown, separating barracks production and passive growth even when both occur together. The bot now spaces decisions 1.8 seconds apart so each public action can be followed; no animation completion gates rules or turns.
+
+Match results now show a large Victory/Defeat heading from the viewing player’s perspective, the winner, and a high-contrast explanation: the configured monument target for prosperity, or the eliminated player and last-province capture for annihilation. The result card stays inside the frame without a full-screen scrim, and replaces obsolete turn/attack controls.
+
+End-of-match layout: the result replaces the bottom card hand, with a transparent heading/winner and a compact background only behind its reason. The battlefield remains unobscured.

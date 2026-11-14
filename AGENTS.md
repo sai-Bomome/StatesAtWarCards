@@ -79,3 +79,7 @@ Move Troops is now implemented (move, 6 copies by default). Blue helmet category
 Play vs Bot is an offline solo mode: human slot 0, Field Bot slot 1, no handoff. chooseBotCommand receives viewFor(authority,1), never the full authority or hidden opponent hand/deck. Bot commands must pass applyCommand; handle out-of-turn Siege responses, discard and end turn. Timers are revision/session guarded and canceled on leaving; do not use feedback animation completion to advance AI.
 
 Feedback names played cards and labels troop-change sources. Turn production uses the authority troopGains ledger to distinguish barracks and passive growth, including concurrent gains. Never infer barracks production merely from a troop increase at a barracks. Bot actions are staggered 1800ms apart and remain revision/session guarded.
+
+End-of-match presentation uses a large viewer-relative Victory/Defeat heading, winner name and explicit prosperity/annihilation reason with the configured monument count. Keep it as a contained high-contrast result card inside the frame, not a full-screen backdrop. Hide End Turn/attack controls when the result is present.
+
+The final result replaces the bottom hand, not the central map. Keep the Victory/Defeat heading and winner on a transparent background; use a compact dark background only for the reason text. Hide the hand, turn actions, remaining-play tray and transient recap after winning. Preserve the visible battlefield and profile badges.

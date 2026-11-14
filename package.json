@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "test": "node --test tests/card-front.test.js tests/island-map.test.js tests/move-feedback.test.js tests/bot.test.js"
+    "test": "node --test tests/card-front.test.js tests/island-map.test.js tests/move-feedback.test.js tests/bot.test.js tests/match-result.test.js"
   },
   "dependencies": {
     "peerjs": "^1.5.5"
